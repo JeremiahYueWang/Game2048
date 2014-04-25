@@ -29,7 +29,7 @@ public class GameView extends GridLayout {
 		initGameView();
 	}
 
-	private int colNum = 4;
+	private int colNum = 3;
 	
 	public int getColNum(){
 		return colNum;
@@ -118,31 +118,60 @@ public class GameView extends GridLayout {
 		}
 	}
 	
+	private boolean checkFinished(){
+		
+		boolean isFinished=true;
+		all:
+		for(int y=0; y<getColNum(); y++){
+			for(int x=0; x<getColNum(); x++){
+				if(cardsMap[y][x].getNum()==0){
+					isFinished=false;
+					break all;
+				}else if(x==0||y==0||x==getColNum()-1||y==getColNum()-1){
+					if(y==0&&cardsMap[y][x].equals(cardsMap[y+1][x]) ||				
+						(y==getColNum()-1)&&cardsMap[y][x].equals(cardsMap[y-1][x]) || 
+						x==0&&cardsMap[y][x].equals(cardsMap[y][x+1]) || 
+						(x==getColNum()-1)&&cardsMap[y][x].equals(cardsMap[y][x-1]) ){
+						isFinished=false;
+						break all;
+					}
+				}else if(cardsMap[y][x].equals(cardsMap[y-1][x]) || 
+						cardsMap[y][x].equals(cardsMap[y+1][x]) || 
+						cardsMap[y][x].equals(cardsMap[y][x-1]) || 
+						cardsMap[y][x].equals(cardsMap[y][x+1])){
+					isFinished=false;
+					break all;
+				}
+			}
+		}
+		return isFinished;
+	}
+	
 	private void addRandomNum(){
 		
 		emptyPoints.clear();
-		System.out.println(emptyPoints.size());
 		
 		for(int y=0; y<getColNum(); y++){
 			for(int x=0; x<getColNum(); x++){
 				if(cardsMap[y][x].getNum()==0){
 					emptyPoints.add(new Point(y, x));
 				}
-				System.out.print(cardsMap[y][x].getNum()+" ");
+				
 			}
-			System.out.println();
 		}
 		
 		
-		int t=(int)(Math.random()*emptyPoints.size());
-		int t1=Math.random()<0.1?4:2;
-		int len=emptyPoints.size();
-		Point p=emptyPoints.remove(t);
-		System.out.println("origin size is "+len+", delete "+t+", ("+p.y+","+p.x+"), new value "+t1+", new size is "+emptyPoints.size());
-		cardsMap[p.y][p.x].setNum(t1);
+		Point p=emptyPoints.remove((int)(Math.random()*emptyPoints.size()));
+		cardsMap[p.x][p.y].setNum(Math.random()<0.1?4:2);
+		
+		if(checkFinished()){
+			System.out.println("finished");
+		}
 	}
 	
 	private void swipeLeft(){
+		
+		boolean isChanged=false;
 		
 		for(int y=0; y<getColNum(); y++){
 			for(int x=0; x<getColNum(); x++){
@@ -151,23 +180,30 @@ public class GameView extends GridLayout {
 						if(cardsMap[y][x].getNum()==0){
 							cardsMap[y][x].setNum(cardsMap[y][i].getNum());
 							cardsMap[y][i].setNum(0);
+							isChanged=true;
 							x--;
 						}else if(cardsMap[y][i].equals(cardsMap[y][x])){
 							cardsMap[y][x].setNum(cardsMap[y][x].getNum()*2);
 							cardsMap[y][i].setNum(0);
 							
 							MainActivity.getMainActitive().addScore(cardsMap[y][x].getNum());
+							isChanged=true;
 						}
 						break;
 					}
 				}
 			}
 		}
-		this.addRandomNum();
+		
+		if(isChanged){
+			this.addRandomNum();
+		}
 		
 	}
 	
 	private void swipeRight(){
+		
+		boolean isChanged=false;
 		
 		for(int y=0; y<getColNum(); y++){
 			for(int x=getColNum()-1; x>=0; x--){
@@ -177,22 +213,31 @@ public class GameView extends GridLayout {
 							cardsMap[y][x].setNum(cardsMap[y][i].getNum());
 							cardsMap[y][i].setNum(0);
 							x++;
+							
+							isChanged=true;
 						}else if(cardsMap[y][i].equals(cardsMap[y][x])){
 							cardsMap[y][x].setNum(cardsMap[y][x].getNum()*2);
 							cardsMap[y][i].setNum(0);
 							
 							MainActivity.getMainActitive().addScore(cardsMap[y][x].getNum());
+							
+							isChanged=true;
 						}
 						break;
 					}
 				}
 			}
 		}
-		this.addRandomNum();
+		
+		if(isChanged){
+			this.addRandomNum();
+		}
 		
 	}
 	
 	private void swipeUp(){
+		
+		boolean isChanged=false;
 		
 		for(int x=0; x<getColNum(); x++){
 			for(int y=0; y<getColNum(); y++){
@@ -202,22 +247,31 @@ public class GameView extends GridLayout {
 							cardsMap[y][x].setNum(cardsMap[i][x].getNum());
 							cardsMap[i][x].setNum(0);
 							y--;
+							
+							isChanged=true;
 						}else if(cardsMap[i][x].equals(cardsMap[y][x])){
 							cardsMap[y][x].setNum(cardsMap[y][x].getNum()*2);
 							cardsMap[i][x].setNum(0);
 							
 							MainActivity.getMainActitive().addScore(cardsMap[y][x].getNum());
+							
+							isChanged=true;
 						}
 						break;
 					}
 				}
 			}
 		}
-		this.addRandomNum();
+		
+		if(isChanged){
+			this.addRandomNum();
+		}
 		
 	}
 	
 	private void swipeDown(){
+		
+		boolean isChanged=false;
 		
 		for(int x=0; x<getColNum(); x++){
 			for(int y=getColNum()-1; y>=0; y--){
@@ -227,18 +281,25 @@ public class GameView extends GridLayout {
 							cardsMap[y][x].setNum(cardsMap[i][x].getNum());
 							cardsMap[i][x].setNum(0);
 							y++;
+							
+							isChanged=true;
 						}else if(cardsMap[i][x].equals(cardsMap[y][x])){
 							cardsMap[y][x].setNum(cardsMap[y][x].getNum()*2);
 							cardsMap[i][x].setNum(0);
 							
 							MainActivity.getMainActitive().addScore(cardsMap[y][x].getNum());
+							
+							isChanged=true;
 						}
 						break;
 					}
 				}
 			}
 		}
-		this.addRandomNum();
+		
+		if(isChanged){
+			this.addRandomNum();
+		}
 		
 	}
 	
