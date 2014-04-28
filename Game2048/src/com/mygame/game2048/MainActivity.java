@@ -44,8 +44,8 @@ public class MainActivity extends Activity {
     	tvScore.setText(score+"");
     }
     
-    public void addScore(int s){
-    	score+=s;
+    public void setScore(int s){
+    	score=s;
     	showScore();
     }
     
