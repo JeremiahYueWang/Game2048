@@ -29,7 +29,7 @@ public class GameView extends GridLayout {
 		initGameView();
 	}
 
-	private int colNum = 3;
+	private int colNum = 4;
 	
 	public int getColNum(){
 		return colNum;
@@ -45,7 +45,7 @@ public class GameView extends GridLayout {
 		this.setBackgroundColor(0xffbbada0);
 		
 		setOnTouchListener(new View.OnTouchListener() {
-			private float startX, startY, offsetX, offsetY;
+			private float startX, startY, offsetX, offsetY, startTime, pushingTime;
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
 				
@@ -53,8 +53,15 @@ public class GameView extends GridLayout {
 				case MotionEvent.ACTION_DOWN:
 					startX=event.getX();
 					startY=event.getY();
+					startTime=event.getEventTime();
 				break;
 				case MotionEvent.ACTION_UP:
+
+					pushingTime=event.getEventTime()-startTime;
+					System.out.println("during time "+pushingTime);
+					if(pushingTime>1000){
+						back();
+					}
 					offsetX=event.getX()-startX;
 					offsetY=event.getY()-startY;
 					if(Math.abs(offsetX)>Math.abs(offsetY)){
@@ -106,6 +113,8 @@ public class GameView extends GridLayout {
 	private void startGame(){
 		
 		MainActivity.getMainActitive().clearScore();
+		score=0;
+		this.snaps.clear();
 		
 		for(int y=0; y<getColNum(); y++){
 			for(int x=0; x<getColNum(); x++){
@@ -116,6 +125,7 @@ public class GameView extends GridLayout {
 		for(int i=0; i<2; i++){
 			addRandomNum();
 		}
+
 	}
 	
 	private boolean checkFinished(){
@@ -164,12 +174,36 @@ public class GameView extends GridLayout {
 		Point p=emptyPoints.remove((int)(Math.random()*emptyPoints.size()));
 		cardsMap[p.x][p.y].setNum(Math.random()<0.1?4:2);
 		
+		
 		if(checkFinished()){
 			System.out.println("finished");
 		}
 	}
 	
+	private void saveSnap(){
+		Snap snap=new Snap();
+		snap.saveScore(score);
+		for(int y=0; y<getColNum(); y++){
+			for(int x=0; x<getColNum(); x++){
+				if(cardsMap[y][x].getNum()>0){
+					snap.addCard(y, x, cardsMap[y][x].getNum());
+				}
+			}
+		}
+		snaps.add(snap);
+	}
+	
+	private void back(){
+		if(snaps.size()>0){
+			Snap snap=snaps.remove(snaps.size()-1);
+		}
+		for(int i=0; )
+		System.out.println("back");
+	}
+	
 	private void swipeLeft(){
+		
+		saveSnap();
 		
 		boolean isChanged=false;
 		
@@ -187,6 +221,7 @@ public class GameView extends GridLayout {
 							cardsMap[y][i].setNum(0);
 							
 							MainActivity.getMainActitive().addScore(cardsMap[y][x].getNum());
+							score+=cardsMap[y][x].getNum();
 							isChanged=true;
 						}
 						break;
@@ -202,6 +237,8 @@ public class GameView extends GridLayout {
 	}
 	
 	private void swipeRight(){
+
+		saveSnap();
 		
 		boolean isChanged=false;
 		
@@ -236,6 +273,8 @@ public class GameView extends GridLayout {
 	}
 	
 	private void swipeUp(){
+
+		saveSnap();
 		
 		boolean isChanged=false;
 		
@@ -271,6 +310,8 @@ public class GameView extends GridLayout {
 	
 	private void swipeDown(){
 		
+		saveSnap();
+		
 		boolean isChanged=false;
 		
 		for(int x=0; x<getColNum(); x++){
@@ -303,6 +344,24 @@ public class GameView extends GridLayout {
 		
 	}
 	
-	private Card[][] cardsMap = new Card[getColNum()][getColNum()];
+	private Card[][] cardsMap = new Card[getColNum()][getColNum()];	
 	private List<Point> emptyPoints = new ArrayList<Point>();
+	private int score=0;
+	
+
+	class Snap{
+		private List<int[]> cards = new ArrayList<int[]>();
+		private int score;
+		
+		public void addCard(int i, int j, int num){
+			int [] t={i, j, num};
+			cards.add(t);
+		}
+		
+		public void saveScore(int n){
+			score=n;
+		}
+	}
+	
+	private List<Snap> snaps = new ArrayList<Snap>();
 }
