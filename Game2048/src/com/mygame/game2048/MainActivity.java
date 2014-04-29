@@ -9,7 +9,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.*;
 import android.os.Build;
 
 public class MainActivity extends Activity {
@@ -23,10 +23,27 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        container=(LinearLayout) this.findViewById(R.id.container);
+        banner=(LinearLayout) this.findViewById(R.id.banner);
         tvScore=(TextView) this.findViewById(R.id.tvScore);
+        highScore=(TextView) this.findViewById(R.id.highScore);
+        gameView=(GameView) this.findViewById(R.id.gameView);
+        backButton=(Button) this.findViewById(R.id.back);
+        
+        int width=container.getWidth();
+        banner.setMinimumHeight(width/3);
+        System.out.println("start game");
+        
+        backButton.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				gameView.back();				
+			}
+		});
     }
-
-
+    
+    
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         
@@ -51,7 +68,12 @@ public class MainActivity extends Activity {
     
     
     private int score=0;
+    private LinearLayout container;
+    private LinearLayout banner;
     private TextView tvScore;
+    private TextView highScore;
+    private Button backButton;
+    private GameView gameView;
     
     
     public static MainActivity mainActivity = null;

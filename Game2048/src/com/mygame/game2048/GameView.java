@@ -195,7 +195,7 @@ public class GameView extends GridLayout {
 		snaps.add(snap);
 	}
 	
-	private void back(){
+	public void back(){
 		Snap snap=null;
 		if(snaps.size()>1){
 			System.out.println("snaps.size="+snaps.size());
