@@ -33,6 +33,7 @@
             android:background="@color/scoregrey"
             android:layout_marginBottom="10dp"
             android:gravity="center"
+            android:textSize="24sp"
             android:text="@string/score"/>
         
        		<TextView 
@@ -41,6 +42,7 @@
             android:layout_height="0dp"
             android:layout_weight="1"   
             android:gravity="center" 
+            android:textSize="24sp"
             android:background="@color/scoregrey"/>
        		
         </LinearLayout>
@@ -58,7 +60,8 @@
             android:layout_weight="0.5"
             android:background="@color/scoregrey"
             android:layout_marginBottom="10dp"
-            android:gravity="center"            
+            android:gravity="center" 
+            android:textSize="24sp"           
             android:text="@string/highscore"/>
         
        		<TextView 
@@ -67,6 +70,7 @@
             android:layout_height="0dp"
             android:layout_weight="1"
             android:gravity="center"
+            android:textSize="24sp"
             android:background="@color/scoregrey"/>
         </LinearLayout>        
         
@@ -76,6 +80,7 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_gravity="right|center_vertical"
+            android:textSize="24sp"
             android:text="@string/back" />
         
     </LinearLayout>
