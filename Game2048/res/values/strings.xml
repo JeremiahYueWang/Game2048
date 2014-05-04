@@ -7,6 +7,11 @@
     <string name="score">Score</string>
     <string name="back">Back</string>
     <string name="highscore">High  Score</string>
+    <string name="title_activity_setting">SettingActivity</string>
+    <string name="setcolumn">设置棋盘大小</string>    
+    <string name="selectcolumnbutton">确定</string>
+
     <color name="scoregrey">#aaaaaa</color>
+
 
 </resources>

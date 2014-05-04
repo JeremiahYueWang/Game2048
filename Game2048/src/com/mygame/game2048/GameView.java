@@ -1,6 +1,10 @@
 package com.mygame.game2048;
 
+
+import java.io.*;
 import java.util.*;
+
+import org.apache.http.util.EncodingUtils;
 
 import android.content.Context;
 import android.graphics.Point;
@@ -15,21 +19,24 @@ public class GameView extends GridLayout {
 		super(context, attrs, defStyle);
 
 		initGameView();
+		
 	}
 
 	public GameView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 
 		initGameView();
+		
 	}
 
 	public GameView(Context context) {
 		super(context);
 
 		initGameView();
+		
 	}
 
-	private int colNum = 4;
+	private int colNum = 2;
 	
 	public int getColNum(){
 		return colNum;
@@ -39,10 +46,13 @@ public class GameView extends GridLayout {
 		colNum=n;
 	}
 	
+	
 	private void initGameView(){
+		
 		
 		this.setColumnCount(getColNum());
 		this.setBackgroundColor(0xffbbada0);
+		
 		
 		setOnTouchListener(new View.OnTouchListener() {
 			private float startX, startY, offsetX, offsetY, startTime, pushingTime;
@@ -110,7 +120,11 @@ public class GameView extends GridLayout {
 		}
 	}
 	
-	private void startGame(){
+	public void startGame(){
+		
+
+		setHighScore(this.getHistoricalHighScore());
+		MainActivity.getMainActitive().showHighScore(getHighScore());
 		
 		MainActivity.getMainActitive().clearScore();
 		setScore(0);
@@ -130,6 +144,45 @@ public class GameView extends GridLayout {
 
 	}
 	
+	public int getHistoricalHighScore(){
+		
+		try{
+			
+			FileInputStream fis=this.getContext().openFileInput("2048HighScore.txt");
+			int length=fis.available();
+			byte[] buffer=new byte[length];
+			fis.read(buffer);
+			String queryResult=EncodingUtils.getString(buffer, "UTF-8");
+			int start=queryResult.indexOf(" ");
+			int h=Integer.parseInt(queryResult.substring(start).trim());
+			fis.close();
+			return h;
+			
+		}catch(Exception e){
+			System.out.println("read get highscore from file error!!!!!!!!!");
+			e.printStackTrace();
+			return 0;
+		}
+		
+	}
+	
+
+	private int highScore=0;
+	
+	public int getHighScore(){
+		return highScore;		
+	}
+	
+	public void setHighScore(int h){
+		highScore=h;
+	}
+	
+	private void updateHighScore(){
+		if(score>highScore){
+			setHighScore(score);
+		}
+	}
+		
 	private boolean checkFinished(){
 		
 		boolean isFinished=true;
@@ -156,7 +209,27 @@ public class GameView extends GridLayout {
 				}
 			}
 		}
+		if(isFinished){
+			updateHighScore();
+			saveHighScoreToFile();
+			MainActivity.getMainActitive().showHighScore(getHighScore());
+		}
 		return isFinished;
+	}
+	
+	private void saveHighScoreToFile(){
+		
+		try{
+			String highScore=colNum+" "+getHighScore()+" ";
+			byte[] buffer=highScore.getBytes();
+			FileOutputStream fos=this.getContext().openFileOutput("2048HighScore.txt", Context.MODE_PRIVATE);
+			fos.write(buffer);
+			fos.close();
+			
+		}catch(Exception e){
+			System.out.println("save highcore to file error!!!!!!");
+		}
+		
 	}
 	
 	private void addRandomNum(){

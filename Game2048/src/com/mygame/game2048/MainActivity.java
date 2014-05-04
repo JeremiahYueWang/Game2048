@@ -3,6 +3,7 @@ package com.mygame.game2048;
 import android.app.Activity;
 import android.app.ActionBar;
 import android.app.Fragment;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -41,6 +42,7 @@ public class MainActivity extends Activity {
 				gameView.back();				
 			}
 		});
+        
     }
     
     
@@ -51,7 +53,37 @@ public class MainActivity extends Activity {
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle presses on the action bar items
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                openSettings();	//打开设置页面
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 
+    private void openSettings(){
+    	
+    	//设置棋盘大小
+    	Intent intent=new Intent(this, SettingActivity.class); 
+    	this.startActivityForResult(intent, 100);
+    	
+    }
+    
+    protected void onActivityResult(int requestCode, int resultCode, Intent data){
+    	if(requestCode==100 && resultCode==Activity.RESULT_OK){
+    		int val=data.getExtras().getInt("column");
+    		System.out.println("new column is "+val);
+    		gameView.setColNum(val); //
+    		gameView.startGame();
+    	}
+    }
+    
+    
     public void clearScore(){
     	score=0;
     	showScore();
@@ -64,6 +96,10 @@ public class MainActivity extends Activity {
     public void setScore(int s){
     	score=s;
     	showScore();
+    }
+    
+    public void showHighScore(int h){
+    	highScore.setText(h+"");
     }
     
     
