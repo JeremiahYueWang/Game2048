@@ -44,5 +44,6 @@ public class Card extends FrameLayout {
 		return getNum()==o.getNum();
 	}
 	private TextView label;
+	private int ColorSet[][]={{0x000000, 0xdddddd},{0x000000, 0xbbbbbb},{0x000000, 0x999999},{0x000000, 0xffcc99}};
 
 }

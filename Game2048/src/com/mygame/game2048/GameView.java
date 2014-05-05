@@ -6,7 +6,9 @@ import java.util.*;
 
 import org.apache.http.util.EncodingUtils;
 
+import android.app.*;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Point;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -19,23 +21,30 @@ public class GameView extends GridLayout {
 		super(context, attrs, defStyle);
 
 		initGameView();
-		
+		self=this;
 	}
 
 	public GameView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 
 		initGameView();
-		
+		self=this;
 	}
 
 	public GameView(Context context) {
 		super(context);
 
 		initGameView();
-		
+		self=this;
 	}
 
+	protected void onSizeChanged(int w, int h, int oldw, int oldh){
+		super.onSizeChanged(w, h, oldw, oldh);	
+		
+		startGame();
+	}
+
+	
 	private int colNum = 2;
 	
 	public int getColNum(){
@@ -46,13 +55,13 @@ public class GameView extends GridLayout {
 		colNum=n;
 	}
 	
+	private Card[][] cardsMap = new Card[getColNum()][getColNum()];	
+	private int[] HighScore=new int[7];	//save the high score of chest plate size from 2-6
 	
 	private void initGameView(){
 		
-		
-		this.setColumnCount(getColNum());
-		this.setBackgroundColor(0xffbbada0);
-		
+		this.setBackgroundColor(0xffbbada0);	
+		this.getHistoricalHighScoreFromFile();
 		
 		setOnTouchListener(new View.OnTouchListener() {
 			private float startX, startY, offsetX, offsetY, startTime, pushingTime;
@@ -68,7 +77,6 @@ public class GameView extends GridLayout {
 				case MotionEvent.ACTION_UP:
 
 					pushingTime=event.getEventTime()-startTime;
-					System.out.println("during time "+pushingTime);
 					if(pushingTime>1000){
 						back();
 					}
@@ -98,34 +106,40 @@ public class GameView extends GridLayout {
 		});
 	}
 	
-	protected void onSizeChanged(int w, int h, int oldw, int oldh){
-		super.onSizeChanged(w, h, oldw, oldh);
+	public void getHistoricalHighScoreFromFile(){
 		
-		int cardWidth=(Math.min(w, h)-10)/getColNum();
-		addCards(cardWidth, cardWidth);
-		startGame();
-	}
-	
-	private void addCards(int cardWidth, int cardHeight){
-		
-		Card c;
-		
-		for(int y=0; y<getColNum(); y++){
-			for(int x=0; x<getColNum(); x++){
-				c=new Card(getContext());
-				c.setNum(0);
-				addView(c, cardWidth, cardHeight);
-				cardsMap[y][x]=c;
+		try{
+			
+			FileInputStream fis=this.getContext().openFileInput("2048HighScore.txt");
+			int length=fis.available();
+			byte[] buffer=new byte[length];
+			fis.read(buffer);
+			String queryResult=EncodingUtils.getString(buffer, "UTF-8");
+			String s[]=queryResult.split(" ");
+			for(int i=0; i<7; i++){
+				HighScore[i]=Integer.parseInt(s[i]);
 			}
+			fis.close();
+			
+		}catch(Exception e){
+			for(int i=0; i<7; i++){
+				HighScore[i]=0;
+			}
+			e.printStackTrace();
 		}
+		
 	}
-	
-	public void startGame(){
 		
+	public void startGame(){		
 
-		setHighScore(this.getHistoricalHighScore());
-		MainActivity.getMainActitive().showHighScore(getHighScore());
-		
+		cardsMap=new Card[getColNum()][getColNum()];
+		clearCards();
+		int cardWidth=(Math.min(this.getWidth(), this.getHeight())-10)/getColNum();
+		addCards(cardWidth, cardWidth);
+		this.setColumnCount(getColNum());
+		MainActivity.getMainActitive().setBackButtonUnabled();
+		MainActivity.getMainActitive().showHighScore(getHighScore(getColNum()));
+				
 		MainActivity.getMainActitive().clearScore();
 		setScore(0);
 		this.snaps.clear();
@@ -142,47 +156,46 @@ public class GameView extends GridLayout {
 		
 		saveSnap();
 
+	}	
+
+	private void clearCards(){
+		this.removeAllViews();
 	}
 	
-	public int getHistoricalHighScore(){
+	private void addCards(int cardWidth, int cardHeight){
 		
-		try{
-			
-			FileInputStream fis=this.getContext().openFileInput("2048HighScore.txt");
-			int length=fis.available();
-			byte[] buffer=new byte[length];
-			fis.read(buffer);
-			String queryResult=EncodingUtils.getString(buffer, "UTF-8");
-			int start=queryResult.indexOf(" ");
-			int h=Integer.parseInt(queryResult.substring(start).trim());
-			fis.close();
-			return h;
-			
-		}catch(Exception e){
-			System.out.println("read get highscore from file error!!!!!!!!!");
-			e.printStackTrace();
-			return 0;
+		Card c;
+		
+		for(int y=0; y<getColNum(); y++){
+			for(int x=0; x<getColNum(); x++){
+				c=new Card(getContext());
+				c.setNum(0);
+				addView(c, cardWidth, cardHeight);
+				cardsMap[y][x]=c;
+			}
 		}
-		
 	}
+	
 	
 
-	private int highScore=0;
+	//private int highScore=0;
 	
-	public int getHighScore(){
-		return highScore;		
+	public int getHighScore(int chestSize){
+		return HighScore[chestSize];		
 	}
 	
-	public void setHighScore(int h){
-		highScore=h;
+	public void setHighScore(int chestSize, int h){
+		HighScore[chestSize]=h;
 	}
 	
 	private void updateHighScore(){
-		if(score>highScore){
-			setHighScore(score);
+		if(score>HighScore[getColNum()]){
+			setHighScore(getColNum(), score);
 		}
 	}
 		
+	private GameView self;
+	
 	private boolean checkFinished(){
 		
 		boolean isFinished=true;
@@ -209,25 +222,24 @@ public class GameView extends GridLayout {
 				}
 			}
 		}
-		if(isFinished){
-			updateHighScore();
-			saveHighScoreToFile();
-			MainActivity.getMainActitive().showHighScore(getHighScore());
-		}
+		
 		return isFinished;
 	}
 	
 	private void saveHighScoreToFile(){
 		
 		try{
-			String highScore=colNum+" "+getHighScore()+" ";
+			
+			String highScore="";
+			for(int i=0; i<7; i++){
+				highScore+=(HighScore[i]+" ");
+			}
 			byte[] buffer=highScore.getBytes();
 			FileOutputStream fos=this.getContext().openFileOutput("2048HighScore.txt", Context.MODE_PRIVATE);
 			fos.write(buffer);
 			fos.close();
 			
 		}catch(Exception e){
-			System.out.println("save highcore to file error!!!!!!");
 		}
 		
 	}
@@ -251,7 +263,19 @@ public class GameView extends GridLayout {
 		
 		
 		if(checkFinished()){
-			System.out.println("finished");
+			updateHighScore();
+			saveHighScoreToFile();
+			MainActivity.getMainActitive().showHighScore(getHighScore(getColNum()));
+			//显示是否重新开始
+			Dialog dialog=new AlertDialog.Builder(this.getContext()).setIcon(R.drawable.ic_launcher).setTitle("游戏结束！").setMessage("重新开始么").setPositiveButton("重新开始", new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface arg0, int arg1) {
+					// TODO Auto-generated method stub
+					self.startGame();
+				}
+			}).create();
+			dialog.show();
 		}
 	}
 	
@@ -266,15 +290,21 @@ public class GameView extends GridLayout {
 			}
 		}
 		snaps.add(snap);
+		
+		if(isBackable()){
+			MainActivity.getMainActitive().setBackButtonEnabled();
+		}
+	}
+	
+	public boolean isBackable(){
+		return snaps.size()>1;
 	}
 	
 	public void back(){
 		Snap snap=null;
 		if(snaps.size()>1){
-			System.out.println("snaps.size="+snaps.size());
 			snap=snaps.remove(snaps.size()-1);
 			snap=snaps.get(snaps.size()-1);
-			System.out.println("number of cards="+snap.size());
 			for(int y=0; y<getColNum(); y++){
 				for(int x=0; x<getColNum(); x++){
 					cardsMap[y][x].setNum(0);
@@ -285,11 +315,12 @@ public class GameView extends GridLayout {
 				cardsMap[t[0]][t[1]].setNum(t[2]);
 			}
 			setScore(snap.showScore());
-			System.out.println("the previous score is "+getScore());
 
 			MainActivity.getMainActitive().setScore(getScore());
 		}
-		System.out.println("back");
+		if(!isBackable()){
+			MainActivity.getMainActitive().setBackButtonUnabled();
+		}
 	}
 	
 	private void swipeLeft(){
@@ -320,8 +351,8 @@ public class GameView extends GridLayout {
 		}
 		
 		if(isChanged){
-			saveSnap();
 			this.addRandomNum();
+			saveSnap();
 		}
 		
 	}
@@ -356,8 +387,8 @@ public class GameView extends GridLayout {
 		}
 		
 		if(isChanged){
-			saveSnap();
 			this.addRandomNum();
+			saveSnap();
 		}
 		
 	}
@@ -434,7 +465,7 @@ public class GameView extends GridLayout {
 		
 	}
 	
-	private Card[][] cardsMap = new Card[getColNum()][getColNum()];	
+	
 	private List<Point> emptyPoints = new ArrayList<Point>();
 	private int score=0;
 	

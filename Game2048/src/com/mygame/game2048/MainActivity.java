@@ -33,7 +33,6 @@ public class MainActivity extends Activity {
         
         int width=container.getWidth();
         banner.setMinimumHeight(width/3);
-        System.out.println("start game");
         
         backButton.setOnClickListener(new View.OnClickListener() {
 			
@@ -42,7 +41,7 @@ public class MainActivity extends Activity {
 				gameView.back();				
 			}
 		});
-        
+                      
     }
     
     
@@ -77,7 +76,6 @@ public class MainActivity extends Activity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
     	if(requestCode==100 && resultCode==Activity.RESULT_OK){
     		int val=data.getExtras().getInt("column");
-    		System.out.println("new column is "+val);
     		gameView.setColNum(val); //
     		gameView.startGame();
     	}
@@ -102,6 +100,13 @@ public class MainActivity extends Activity {
     	highScore.setText(h+"");
     }
     
+    public void setBackButtonEnabled(){
+    	backButton.setEnabled(true);
+    }
+    
+    public void setBackButtonUnabled(){
+    	backButton.setEnabled(false);
+    }
     
     private int score=0;
     private LinearLayout container;

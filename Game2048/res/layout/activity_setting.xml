@@ -3,24 +3,22 @@
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_gravity="center_vertical"
-    android:gravity="center_vertical"
+    android:layout_gravity="center_vertical|center_horizontal"
+    android:gravity="center_vertical|center_horizontal"
     android:orientation="vertical"
     tools:context="com.mygame.game2048.SettingActivity"
     tools:ignore="MergeRootFrame" >
     
     <TextView 
-        android:layout_width="fill_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="30sp"
-        android:layout_gravity="center"
         android:text="@string/setcolumn"/>
 
     <NumberPicker
         android:id="@+id/columnnumberPicker"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical" />
+        android:layout_height="wrap_content" />
 
     <Button
         android:id="@+id/selectcolumnbutton"
