@@ -29,11 +29,21 @@ public class Card extends FrameLayout {
 		this.num=n;
 		if(n==0){
 			label.setText("");
+			label.setBackgroundColor(0x33ffffff);
 		}else{
 			label.setText(num+"");
-//			label.setTextColor();
-//			label.setBackgroundColor();
+			label.setTextColor(ColorSet[log2(n)][0]);
+			label.setBackgroundColor(ColorSet[log2(n)][1]);
 		}
+	}
+	
+	private int log2(int n){
+		int result=0, t=n;
+		while(t>1){
+			t/=2;
+			result++;
+		}
+		return result-1;
 	}
 	
 	public int getNum(){
@@ -44,6 +54,10 @@ public class Card extends FrameLayout {
 		return getNum()==o.getNum();
 	}
 	private TextView label;
-	private int ColorSet[][]={{0x000000, 0xdddddd},{0x000000, 0xbbbbbb},{0x000000, 0x999999},{0x000000, 0xffcc99}};
+	private int ColorSet[][]=
+		{{0xff000000, 0x3354FF9F},{0xff000000, 0x332E8B57},{0xff000000, 0x332F4F4F},
+		{0xff000000, 0x33FFEC8B},{0xff000000, 0x33FFD700},{0xff000000, 0x338B7500},
+		{0xff000000, 0x33FF7F00},{0xff000000, 0x33ff7256},{0xff000000, 0x338B3E2F},
+		{0xff000000, 0x33FFB6C1},{0xff000000, 0x33ba55d3},{0xff000000, 0x339400d3}};
 
 }

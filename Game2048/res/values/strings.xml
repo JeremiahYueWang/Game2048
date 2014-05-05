@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <string name="app_name">Game2048</string>
+    <string name="app_name">我的2048</string>
     <string name="hello_world">Hello world!</string>
-    <string name="action_settings">设置</string>
+    <string name="action_settings">设置棋盘</string>
     <string name="score">分数</string>
     <string name="back">悔棋</string>
     <string name="highscore">最高分</string>
-    <string name="title_activity_setting">SettingActivity</string>
+    <string name="title_activity_setting">设置棋盘</string>
     <string name="setcolumn">设置棋盘大小</string>    
     <string name="selectcolumnbutton">确定</string>
 

@@ -45,7 +45,7 @@ public class GameView extends GridLayout {
 	}
 
 	
-	private int colNum = 2;
+	private int colNum = 4;
 	
 	public int getColNum(){
 		return colNum;
