@@ -11,7 +11,7 @@ public class Card extends FrameLayout {
 		super(context);
 
 		label=new TextView(getContext());
-		label.setTextSize(32);
+		label.setTextSize(24);
 		label.setGravity(Gravity.CENTER);
 		label.setBackgroundColor(0x33ffffff);//in setNum（）,for different Num, set different bgcolor, and textcolor
 		
