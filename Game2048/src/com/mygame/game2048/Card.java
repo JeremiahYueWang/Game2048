@@ -23,6 +23,10 @@ public class Card extends FrameLayout {
 		setNum(0);
 	}
 	
+	public TextView getLabel(){
+		return label;
+	}
+	
 	private int num=0;
 	
 	public void setNum(int n){
@@ -53,6 +57,7 @@ public class Card extends FrameLayout {
 	public boolean equals(Card o){
 		return getNum()==o.getNum();
 	}
+	
 	private TextView label;
 	private int ColorSet[][]=
 		{{0xff000000, 0x3354FF9F},{0xff000000, 0x332E8B57},{0xff000000, 0x332F4F4F},

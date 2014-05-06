@@ -29,6 +29,7 @@ public class MainActivity extends Activity {
         tvScore=(TextView) this.findViewById(R.id.tvScore);
         highScore=(TextView) this.findViewById(R.id.highScore);
         gameView=(GameView) this.findViewById(R.id.gameView);
+        animLayer=(AnimLayer) this.findViewById(R.id.animLayer);
         backButton=(Button) this.findViewById(R.id.back);
         
         int width=container.getWidth();
@@ -115,12 +116,16 @@ public class MainActivity extends Activity {
     private TextView highScore;
     private Button backButton;
     private GameView gameView;
+    private AnimLayer animLayer;
     
     
     public static MainActivity mainActivity = null;
     
     public static MainActivity getMainActitive(){
     	return mainActivity;
+    }
+    public AnimLayer getAnimLayer(){
+    	return animLayer;
     }
 
 }
