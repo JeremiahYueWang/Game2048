@@ -150,7 +150,7 @@ public class GameView extends GridLayout {
 		if(snaps.size()>=1){
 			loadSnap(snaps.get(snaps.size()-1));
 		}else{
-			
+			MainActivity.getMainActitive().setBackButtonUnabled();
 			for(int i=0; i<2; i++){
 				addRandomNum();
 			}
@@ -164,6 +164,7 @@ public class GameView extends GridLayout {
 		this.snaps.clear();
 		this.setScore(0);
 		MainActivity.getMainActitive().clearScore();
+		MainActivity.getMainActitive().setBackButtonUnabled();
 	}
 
 	private void clearCards(){
