@@ -23,7 +23,7 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        
         container=(LinearLayout) this.findViewById(R.id.container);
         banner=(LinearLayout) this.findViewById(R.id.banner);
         tvScore=(TextView) this.findViewById(R.id.tvScore);
@@ -42,9 +42,42 @@ public class MainActivity extends Activity {
 				gameView.back();				
 			}
 		});
+
+		gameView.getGameStateFromFile();
+		isSaved=false;
                       
     }
     
+    
+
+	protected void onStart(){
+		super.onStart();
+	}
+	
+	protected void onRestart(){
+		super.onRestart();
+	}
+	
+	protected void onResume(){
+		super.onResume();
+	}
+	
+	protected void onPause(){
+		super.onPause();
+	}
+	
+	protected void onStop(){
+		super.onStop();
+		gameView.saveGameStateToFile();
+		isSaved=true;
+	}
+	
+	protected void onDestroy(){
+		super.onDestroy();
+		if(!isSaved){
+			gameView.saveGameStateToFile();
+		}
+	}
     
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -74,10 +107,15 @@ public class MainActivity extends Activity {
     	
     }
     
+    public int getCurrentColumn(){
+    	return gameView.getColNum();
+    }
+    
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
     	if(requestCode==100 && resultCode==Activity.RESULT_OK){
     		int val=data.getExtras().getInt("column");
     		gameView.setColNum(val); //
+    		gameView.endGame();
     		gameView.startGame();
     	}
     }
@@ -127,5 +165,6 @@ public class MainActivity extends Activity {
     public AnimLayer getAnimLayer(){
     	return animLayer;
     }
-
+    
+    private boolean isSaved=false;
 }

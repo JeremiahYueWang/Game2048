@@ -24,6 +24,7 @@ public class SettingActivity extends Activity {
 		this.selectColumnPicker=(NumberPicker)findViewById(R.id.columnnumberPicker);
 		selectColumnPicker.setMinValue(2);
 		selectColumnPicker.setMaxValue(6);
+		selectColumnPicker.setValue(MainActivity.getMainActitive().getCurrentColumn());
 		selectColumnButton.setOnClickListener(new View.OnClickListener() {
 			
 			@Override

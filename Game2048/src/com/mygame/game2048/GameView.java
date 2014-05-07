@@ -10,6 +10,7 @@ import android.app.*;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Point;
+import android.os.Bundle;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -37,7 +38,7 @@ public class GameView extends GridLayout {
 		initGameView();
 		self=this;
 	}
-
+	
 	protected void onSizeChanged(int w, int h, int oldw, int oldh){
 		super.onSizeChanged(w, h, oldw, oldh);	
 		
@@ -59,9 +60,10 @@ public class GameView extends GridLayout {
 	private int[] HighScore=new int[7];	//save the high score of chest plate size from 2-6
 	
 	private void initGameView(){
-		
 		this.setBackgroundColor(0xffbbada0);	
 		this.getHistoricalHighScoreFromFile();
+		//从历史中读取上次结束的状态
+		
 		
 		setOnTouchListener(new View.OnTouchListener() {
 			private float startX, startY, offsetX, offsetY, startTime, pushingTime;
@@ -130,33 +132,39 @@ public class GameView extends GridLayout {
 		
 	}
 		
-	public void startGame(){		
-
+	public void startGame(){
+		
 		cardsMap=new Card[getColNum()][getColNum()];
 		clearCards();
 		int cardWidth=(Math.min(this.getWidth(), this.getHeight())-10)/getColNum();
 		addCards(cardWidth, cardWidth);
 		this.setColumnCount(getColNum());
-		MainActivity.getMainActitive().setBackButtonUnabled();
+
 		MainActivity.getMainActitive().showHighScore(getHighScore(getColNum()));
-				
-		MainActivity.getMainActitive().clearScore();
-		setScore(0);
-		this.snaps.clear();
-		
 		for(int y=0; y<getColNum(); y++){
 			for(int x=0; x<getColNum(); x++){
 				cardsMap[y][x].setNum(0);
 			}
 		}
 		
-		for(int i=0; i<2; i++){
-			addRandomNum();
+		if(snaps.size()>=1){
+			loadSnap(snaps.get(snaps.size()-1));
+		}else{
+			
+			for(int i=0; i<2; i++){
+				addRandomNum();
+			}
+			
+			saveSnap();
 		}
-		
-		saveSnap();
 
 	}	
+	
+	public void endGame(){
+		this.snaps.clear();
+		this.setScore(0);
+		MainActivity.getMainActitive().clearScore();
+	}
 
 	private void clearCards(){
 		this.removeAllViews();
@@ -272,6 +280,7 @@ public class GameView extends GridLayout {
 				@Override
 				public void onClick(DialogInterface arg0, int arg1) {
 					// TODO Auto-generated method stub
+					self.endGame();
 					self.startGame();
 				}
 			}).create();
@@ -296,6 +305,25 @@ public class GameView extends GridLayout {
 		}
 	}
 	
+	private void loadSnap(Snap snap){
+		for(int y=0; y<getColNum(); y++){
+			for(int x=0; x<getColNum(); x++){
+				cardsMap[y][x].setNum(0);
+			}
+		}
+		for(int i=0; i<snap.size(); i++){
+			int t[]=snap.get(i);
+			cardsMap[t[0]][t[1]].setNum(t[2]);
+		}
+		setScore(snap.showScore());		
+
+		MainActivity.getMainActitive().setScore(getScore());
+		if(!isBackable()){
+			MainActivity.getMainActitive().setBackButtonUnabled();
+		}
+		
+	}
+	
 	public boolean isBackable(){
 		return snaps.size()>1;
 	}
@@ -305,22 +333,10 @@ public class GameView extends GridLayout {
 		if(snaps.size()>1){
 			snap=snaps.remove(snaps.size()-1);
 			snap=snaps.get(snaps.size()-1);
-			for(int y=0; y<getColNum(); y++){
-				for(int x=0; x<getColNum(); x++){
-					cardsMap[y][x].setNum(0);
-				}
-			}
-			for(int i=0; i<snap.size(); i++){
-				int t[]=snap.get(i);
-				cardsMap[t[0]][t[1]].setNum(t[2]);
-			}
-			setScore(snap.showScore());
-
-			MainActivity.getMainActitive().setScore(getScore());
+			
+			loadSnap(snap);
 		}
-		if(!isBackable()){
-			MainActivity.getMainActitive().setBackButtonUnabled();
-		}
+		
 	}
 	
 	private void swipeLeft(){
@@ -492,6 +508,64 @@ public class GameView extends GridLayout {
 		return score;
 	}
 
+	public void saveGameStateToFile(){
+		String gameState="";
+		gameState+=(getColNum()+" ");	//保存当前棋盘大小
+		if(checkFinished()){
+			gameState+="0 ";	//显示只有0个状态；
+		}else{
+			gameState+=(snaps.size()+" ");	//保存snaps的大小
+			for(int i=0; i<snaps.size(); i++){
+				gameState+=snaps.get(i).toString();
+			}
+		}
+		
+		try{
+			byte[] buffer=gameState.getBytes();
+			FileOutputStream fos=this.getContext().openFileOutput("2048GameState.txt", Context.MODE_PRIVATE);
+			fos.write(buffer);
+			fos.close();
+		}catch(Exception e){
+			
+		}
+	}
+	
+	public void getGameStateFromFile(){
+		try{
+			FileInputStream fis=this.getContext().openFileInput("2048GameState.txt");
+			int length=fis.available();
+			byte[] buffer=new byte[length];
+			fis.read(buffer);
+			String queryResult=EncodingUtils.getString(buffer, "UTF-8");
+			String gameState[]=queryResult.split(" ");
+			
+			int index=0;
+			setColNum(Integer.parseInt(gameState[index++]));
+			
+			this.snaps.clear();
+			int snapsSize=Integer.parseInt(gameState[index++]);
+			
+			for(int i=0; i<snapsSize; i++){
+				Snap snap=new Snap();
+				snap.saveScore(Integer.parseInt(gameState[index++]));
+				int cardsNum=Integer.parseInt(gameState[index++]);
+				for(int j=0; j<cardsNum; j++){
+					snap.addCard(Integer.parseInt(gameState[index]), Integer.parseInt(gameState[index+1]), Integer.parseInt(gameState[index+2]));
+					index+=3;
+				}
+				snaps.add(snap);
+			}			
+
+			fis.close();
+			
+		}catch(Exception e){
+			//没有找到文件表示第一次游戏
+			setColNum(4);
+			MainActivity.getMainActitive().clearScore();
+			this.snaps.clear();
+		}
+	}
+	
 	class Snap{
 		private List<int[]> cards = new ArrayList<int[]>();
 		private int score;
@@ -515,6 +589,18 @@ public class GameView extends GridLayout {
 		
 		public int[] get(int i){
 			return cards.get(i);
+		}
+		
+		public String toString(){
+			
+			String result="";
+			result+=(score+" ");	//分数
+			result+=(cards.size()+" ");	//当前局面的卡片个数
+			for(int i=0; i<cards.size(); i++){
+				result+=(cards.get(i)[0]+" "+cards.get(i)[1]+" "+cards.get(i)[2]+" ");
+			}
+			return result;
+			
 		}
 	}
 	
